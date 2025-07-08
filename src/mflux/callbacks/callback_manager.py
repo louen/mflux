@@ -16,6 +16,7 @@ class CallbackManager:
         enable_canny_saver: bool = False,
         enable_depth_saver: bool = False,
     ) -> MemorySaver | None:
+        return None
         # Battery saver (always enabled)
         CallbackManager._register_battery_saver(args)
 

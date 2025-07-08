@@ -17,8 +17,8 @@ class PromptEncoder:
         clip_text_encoder: CLIPEncoder,
     ) -> tuple[mx.array, mx.array]:
         # 1. Return prompt encodings if already cached
-        if prompt in prompt_cache:
-            return prompt_cache[prompt]
+        #if prompt in prompt_cache:
+        #    return prompt_cache[prompt]
 
         # 1. Encode the prompt
         t5_tokens = t5_tokenizer.tokenize(prompt)

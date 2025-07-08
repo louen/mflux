@@ -56,7 +56,7 @@ class Flux1(nn.Module):
 
         # 0. Create a new runtime config based on the model type and input parameters
         config = RuntimeConfig(config, self.model_config)
-        time_steps = tqdm(range(config.init_time_step, config.num_inference_steps))
+        time_steps = tqdm(range(config.init_time_step, config.num_inference_steps), disable=True)
 
         # 1. Create the initial latents
         latents = LatentCreator.create_for_txt2img_or_img2img(
