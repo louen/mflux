@@ -17,6 +17,7 @@ class Callbacks:
         depth_image: PIL.Image.Image | None = None,
     ):
         for subscriber in CallbackRegistry.before_loop_callbacks():
+            print("BEFORE LOOP CB")
             subscriber.call_before_loop(
                 seed=seed,
                 prompt=prompt,
@@ -36,6 +37,7 @@ class Callbacks:
         time_steps: tqdm,
     ):
         for subscriber in CallbackRegistry.in_loop_callbacks():
+            print("IN LOOP CB")
             subscriber.call_in_loop(
                 t=t,
                 seed=seed,
@@ -53,6 +55,7 @@ class Callbacks:
         config: RuntimeConfig,
     ):
         for subscriber in CallbackRegistry.after_loop_callbacks():
+            print("AFTER LOOP CB")
             subscriber.call_after_loop(seed=seed, prompt=prompt, latents=latents, config=config)
 
     @staticmethod

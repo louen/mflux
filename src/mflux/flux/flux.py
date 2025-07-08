@@ -19,6 +19,7 @@ from mflux.post_processing.generated_image import GeneratedImage
 from mflux.post_processing.image_util import ImageUtil
 from mflux.weights.model_saver import ModelSaver
 
+import time
 
 class Flux1(nn.Module):
     vae: VAE
@@ -50,6 +51,9 @@ class Flux1(nn.Module):
         prompt: str,
         config: Config,
     ) -> GeneratedImage:
+
+        start = time.perf_counter()
+
         # 0. Create a new runtime config based on the model type and input parameters
         config = RuntimeConfig(config, self.model_config)
         time_steps = tqdm(range(config.init_time_step, config.num_inference_steps))
@@ -85,7 +89,11 @@ class Flux1(nn.Module):
             config=config,
         )
 
+        preamble_end = time.perf_counter()
+        print(f"Loading time: {preamble_end - start} s")
+
         for t in time_steps:
+            step_start = time.perf_counter()
             try:
                 # 3.t Predict the noise
                 noise = self.transformer(
@@ -112,6 +120,8 @@ class Flux1(nn.Module):
 
                 # (Optional) Evaluate to enable progress tracking
                 mx.eval(latents)
+                step_end = time.perf_counter()
+                print(f"Step time {t+1}/{time_steps}: {step_end - step_start} s")
 
             except KeyboardInterrupt:  # noqa: PERF203
                 Callbacks.interruption(
@@ -124,6 +134,7 @@ class Flux1(nn.Module):
                 )
                 raise StopImageGenerationException(f"Stopping image generation at step {t + 1}/{len(time_steps)}")
 
+        decode_start = time.perf_counter()
         # (Optional) Call subscribers after loop
         Callbacks.after_loop(
             seed=seed,
@@ -135,6 +146,9 @@ class Flux1(nn.Module):
         # 7. Decode the latent array and return the image
         latents = ArrayUtil.unpack_latents(latents=latents, height=config.height, width=config.width)
         decoded = self.vae.decode(latents)
+        decode_end = time.perf_counter()
+        print(f"Decode time: {decode_end - decode_start} s")
+        print(f"Total time: {decode_end - start} s")
         return ImageUtil.to_image(
             decoded_latents=decoded,
             config=config,

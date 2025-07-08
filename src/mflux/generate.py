@@ -5,6 +5,14 @@ from mflux.ui import defaults as ui_defaults
 from mflux.ui.cli.parsers import CommandLineParser
 from mflux.ui.prompt_utils import get_effective_prompt
 
+import mlx.core as mx
+
+def report():
+    print(f"MLX peak {mx.get_peak_memory()}")
+    print(f"MLX cache {mx.get_cache_memory()}")
+    #print(f"MLX cache limit {mx.get_cache_limit()}")
+    print(f"MLX memory {mx.get_active_memory()}")
+    #print(f"MLX limit {mx.get_memory_limit()}")
 
 def main():
     # 0. Parse command line arguments
@@ -33,6 +41,10 @@ def main():
     # 2. Register callbacks
     memory_saver = CallbackManager.register_callbacks(args=args, flux=flux)
 
+    print(f"Memory saver is : {memory_saver}")
+    report()
+
+
     try:
         for seed in args.seed:
             # 3. Generate an image for each seed value
@@ -48,6 +60,7 @@ def main():
                     image_strength=args.image_strength,
                 ),
             )
+            report()
             # 4. Save the image
             image.save(path=args.output.format(seed=seed), export_json_metadata=args.metadata)
     except (StopImageGenerationException, PromptFileReadError) as exc:
